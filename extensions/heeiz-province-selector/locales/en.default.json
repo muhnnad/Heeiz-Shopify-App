@@ -1,0 +1,18 @@
+{
+  "blocks": {
+    "province_selector": {
+      "name": "Province & Region Selector",
+      "settings": {
+        "heading": {
+          "label": "Heading"
+        },
+        "show_description": {
+          "label": "Show description"
+        },
+        "accent_color": {
+          "label": "Accent color"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,243 @@
+{% comment %}
+  Heeiz Province & Region Selector — Theme App Extension Block
+  ─────────────────────────────────────────────────────────────
+  يحفظ اختيار الزبون كـ Cart Attributes ثم تنتقل تلقائياً إلى الطلب:
+    cart[attributes][heeiz_province_id]    — رقم المحافظة
+    cart[attributes][heeiz_province_name]  — اسم المحافظة
+    cart[attributes][heeiz_region_id]      — رقم المنطقة
+    cart[attributes][heeiz_region_name]    — اسم المنطقة
+{% endcomment %}
+
+<div
+  id="heeiz-province-selector-{{ block.id }}"
+  class="heeiz-selector"
+  dir="rtl"
+  style="--accent: {{ block.settings.accent_color }};"
+>
+
+  {% if block.settings.heading != blank %}
+    <div class="heeiz-selector__heading">
+      <span class="heeiz-selector__icon">📍</span>
+      <h3>{{ block.settings.heading }}</h3>
+    </div>
+  {% endif %}
+
+  {% if block.settings.show_description %}
+    <p class="heeiz-selector__description">
+      اختر محافظتك ومنطقتك لحساب تكلفة التوصيل بدقة
+    </p>
+  {% endif %}
+
+  <div class="heeiz-selector__fields">
+
+    <!-- المحافظة -->
+    <div class="heeiz-selector__field">
+      <label for="heeiz-province-{{ block.id }}">
+        المحافظة <span class="heeiz-required">*</span>
+      </label>
+      <div class="heeiz-select-wrap">
+        <select
+          id="heeiz-province-{{ block.id }}"
+          class="heeiz-select"
+          data-heeiz-province
+          required
+        >
+          <option value="">— اختر المحافظة —</option>
+        </select>
+      </div>
+      <input type="hidden" id="heeiz-province-name-{{ block.id }}" data-heeiz-province-name value="">
+    </div>
+
+    <!-- المنطقة -->
+    <div class="heeiz-selector__field">
+      <label for="heeiz-region-{{ block.id }}">
+        المنطقة <span class="heeiz-required">*</span>
+      </label>
+      <div class="heeiz-select-wrap">
+        <select
+          id="heeiz-region-{{ block.id }}"
+          class="heeiz-select"
+          data-heeiz-region
+          disabled
+        >
+          <option value="">— اختر المحافظة أولاً —</option>
+        </select>
+      </div>
+      <input type="hidden" id="heeiz-region-name-{{ block.id }}" data-heeiz-region-name value="">
+    </div>
+
+  </div>
+
+  <!-- رسالة التأكيد -->
+  <div class="heeiz-selector__confirmation" data-heeiz-confirmation style="display:none;">
+    <span class="heeiz-check">✓</span>
+    منطقة التوصيل: <strong data-heeiz-selected-text></strong>
+  </div>
+
+  <!-- رسالة الخطأ -->
+  <div class="heeiz-selector__error" data-heeiz-error style="display:none;"></div>
+
+</div>
+
+{{ 'province-selector.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'provinces-data.js' | asset_url }}" defer></script>
+
+<script>
+(function() {
+  var BLOCK_ID = '{{ block.id }}';
+
+  function init() {
+    if (typeof window.HEEIZ_PROVINCES === 'undefined' || typeof window.HEEIZ_REGIONS === 'undefined') {
+      setTimeout(init, 80);
+      return;
+    }
+
+    var root        = document.getElementById('heeiz-province-selector-' + BLOCK_ID);
+    if (!root) return;
+
+    var provinceSelect  = root.querySelector('[data-heeiz-province]');
+    var regionSelect    = root.querySelector('[data-heeiz-region]');
+    var provinceNameEl  = root.querySelector('[data-heeiz-province-name]');
+    var regionNameEl    = root.querySelector('[data-heeiz-region-name]');
+    var confirmation    = root.querySelector('[data-heeiz-confirmation]');
+    var selectedTextEl  = root.querySelector('[data-heeiz-selected-text]');
+    var errorEl         = root.querySelector('[data-heeiz-error]');
+
+    // ─── تعبئة المحافظات ───
+    window.HEEIZ_PROVINCES.forEach(function(province) {
+      var opt = document.createElement('option');
+      opt.value = province.id;
+      opt.textContent = province.name;
+      provinceSelect.appendChild(opt);
+    });
+
+    // ─── عند اختيار المحافظة ───
+    provinceSelect.addEventListener('change', function() {
+      var pid = parseInt(this.value, 10);
+
+      // إعادة ضبط المنطقة
+      regionSelect.innerHTML = '<option value="">— اختر المنطقة —</option>';
+      regionSelect.disabled = true;
+      regionNameEl.value = '';
+      confirmation.style.display = 'none';
+      errorEl.style.display = 'none';
+
+      // حفظ اسم المحافظة
+      var prov = window.HEEIZ_PROVINCES.find(function(p) { return p.id === pid; });
+      provinceNameEl.value = prov ? prov.name : '';
+
+      if (!pid) return;
+
+      // تعبئة مناطق المحافظة
+      var rlist = window.HEEIZ_REGIONS[pid] || [];
+      if (rlist.length === 0) {
+        var opt = document.createElement('option');
+        opt.value = '';
+        opt.textContent = 'لا توجد مناطق متاحة';
+        opt.disabled = true;
+        regionSelect.appendChild(opt);
+      } else {
+        rlist.forEach(function(region) {
+          var opt = document.createElement('option');
+          opt.value = region.id;
+          opt.textContent = region.name;
+          regionSelect.appendChild(opt);
+        });
+        regionSelect.disabled = false;
+      }
+
+      saveToCart();
+    });
+
+    // ─── عند اختيار المنطقة ───
+    regionSelect.addEventListener('change', function() {
+      var selOpt = regionSelect.options[regionSelect.selectedIndex];
+      regionNameEl.value = selOpt ? selOpt.textContent : '';
+
+      if (this.value && provinceSelect.value) {
+        selectedTextEl.textContent = provinceNameEl.value + ' — ' + regionNameEl.value;
+        confirmation.style.display = 'flex';
+      } else {
+        confirmation.style.display = 'none';
+      }
+
+      saveToCart();
+    });
+
+    // ─── حفظ في Cart Attributes ───
+    function saveToCart() {
+      fetch('/cart/update.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          attributes: {
+            heeiz_province_id:   provinceSelect.value || '',
+            heeiz_province_name: provinceNameEl.value || '',
+            heeiz_region_id:     regionSelect.value   || '',
+            heeiz_region_name:   regionNameEl.value   || ''
+          }
+        })
+      })
+      .then(function(r) { if (!r.ok) throw new Error('cart update failed'); })
+      .catch(function(err) {
+        errorEl.textContent = 'تعذّر حفظ منطقة التوصيل. الرجاء المحاولة مجدداً.';
+        errorEl.style.display = 'block';
+        console.error('Heeiz cart save error:', err);
+      });
+    }
+
+    // ─── استرجاع القيمة المحفوظة (عند العودة للصفحة) ───
+    fetch('/cart.js')
+      .then(function(r) { return r.json(); })
+      .then(function(cart) {
+        var attrs = cart.attributes || {};
+        if (attrs.heeiz_province_id) {
+          provinceSelect.value = attrs.heeiz_province_id;
+          provinceSelect.dispatchEvent(new Event('change'));
+
+          // انتظر تحميل المناطق ثم اختر المنطقة
+          setTimeout(function() {
+            if (attrs.heeiz_region_id) {
+              regionSelect.value = attrs.heeiz_region_id;
+              regionSelect.dispatchEvent(new Event('change'));
+            }
+          }, 150);
+        }
+      })
+      .catch(function() {});
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+
+{% schema %}
+{
+  "name": "محافظة ومنطقة التوصيل",
+  "target": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "العنوان",
+      "default": "منطقة التوصيل"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_description",
+      "label": "عرض الوصف التوضيحي",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "لون التمييز",
+      "default": "#2563eb"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,45 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "0a8f18f3767200f37f6eeaace1b2a3a1"
+name = "Heeiz App "
+application_url = "https://example.com"
+embedded = true
+
+[build]
+automatically_update_urls_on_dev = true
+
+[webhooks]
+api_version = "2026-04"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/uninstalled" ]
+  uri = "/webhooks/app/uninstalled"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/scopes_update" ]
+  uri = "/webhooks/app/scopes_update"
+
+[access_scopes]
+scopes = "read_orders,read_customers"
+
+[access.admin]
+direct_api_mode = "online"
+
+[[access.admin.customer_data_protections]]
+data_type = "Name"
+purposes = [ "fulfill_orders" ]
+
+[[access.admin.customer_data_protections]]
+data_type = "Email"
+purposes = [ "fulfill_orders" ]
+
+[[access.admin.customer_data_protections]]
+data_type = "Phone"
+purposes = [ "fulfill_orders" ]
+
+[[access.admin.customer_data_protections]]
+data_type = "ShippingAddress"
+purposes = [ "fulfill_orders" ]
+
+[auth]
+redirect_urls = [ "https://example.com/api/auth" ]

@@ -1,0 +1,7 @@
+api_version = "2024-10"
+
+[[extensions]]
+uid = "364b3664-0de1-2761-6d44-109957c67fb72688d225"
+type = "theme"
+name = "Heeiz Province Selector"
+handle = "heeiz-province-selector"
