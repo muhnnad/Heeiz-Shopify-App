@@ -3,6 +3,6 @@ builder = "nixpacks"
 buildCommand = "npm run build"
 
 [deploy]
-startCommand = "npx prisma db push; npm run start"
+startCommand = "CHECKPOINT_DISABLE=1 npx prisma db push --skip-generate; echo '=== Prisma done, PORT='$PORT' ==='; npm run start"
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3
