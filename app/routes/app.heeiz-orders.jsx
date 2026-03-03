@@ -71,7 +71,7 @@ export const loader = async ({ request }) => {
 
     return {
       hasToken: true,
-      orders: result.data || [],
+      orders: Array.isArray(result.data) ? result.data : [],
       meta: result.meta || null,
       page,
       orderStatus,
