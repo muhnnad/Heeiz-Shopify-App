@@ -3,7 +3,7 @@ builder = "nixpacks"
 buildCommand = "npm run build"
 
 [deploy]
-startCommand = "echo '=== PORT='$PORT' ===' && npx prisma generate && npx prisma db push && echo '=== DB ready ===' && npm run start"
+startCommand = "npx prisma generate 2>&1; timeout 60 npx prisma db push 2>&1; echo '=== Starting server on PORT='$PORT' ===' && npm run start"
 healthcheckPath = "/health"
 healthcheckTimeout = 120
 restartPolicyType = "on_failure"
