@@ -1,8 +1,8 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "0a8f18f3767200f37f6eeaace1b2a3a1"
-name = "Heeiz App "
-application_url = "https://example.com"
+name = "Heeiz App"
+application_url = "https://heeiz.up.railway.app"
 embedded = true
 
 [build]
@@ -20,7 +20,7 @@ api_version = "2026-04"
   uri = "/webhooks/app/scopes_update"
 
 [access_scopes]
-scopes = "read_orders,read_customers"
+scopes = "read_orders,read_products,read_customers"
 
 [access.admin]
 direct_api_mode = "online"
@@ -42,4 +42,8 @@ data_type = "ShippingAddress"
 purposes = [ "fulfill_orders" ]
 
 [auth]
-redirect_urls = [ "https://example.com/api/auth" ]
+redirect_urls = [
+  "https://heeiz.up.railway.app/auth/callback",
+  "https://heeiz.up.railway.app/auth/shopify/callback",
+  "https://heeiz.up.railway.app/api/auth"
+]
