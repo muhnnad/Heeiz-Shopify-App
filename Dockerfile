@@ -22,4 +22,4 @@ RUN npm prune --omit=dev
 EXPOSE 3000
 
 # Regenerate Prisma client, sync DB schema, then start server
-CMD ["sh", "-c", "npx prisma generate && npx prisma db push && npm run start"]
+CMD ["sh", "-c", "echo '=== Starting ===' && npx prisma db push && echo '=== Prisma done ===' && echo '=== Running npm start ===' && npm run start 2>&1 || echo '=== START FAILED ===' && exit 1"]
