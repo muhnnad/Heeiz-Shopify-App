@@ -1,5 +1,6 @@
-FROM node:20-alpine
-RUN apk add --no-cache openssl
+FROM node:20-slim
+
+RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
@@ -7,18 +8,18 @@ ENV NODE_ENV=production
 
 COPY package.json package-lock.json* ./
 
-# Install ALL dependencies (including devDeps) — needed for build tools (vite, @react-router/dev)
+# Install ALL dependencies (including devDeps) — needed for build tools
 RUN npm ci && npm cache clean --force
 
 COPY . .
 
-# Build the app (requires devDependencies)
+# Build the app
 RUN npm run build
 
-# Remove devDependencies after build to keep the image slim
+# Remove devDependencies after build
 RUN npm prune --omit=dev
 
 EXPOSE 3000
 
-# Run schema sync then start the server
-CMD ["sh", "-c", "npx prisma db push && npm run start"]
+# Regenerate Prisma client, sync DB schema, then start server
+CMD ["sh", "-c", "npx prisma generate && npx prisma db push && npm run start"]
