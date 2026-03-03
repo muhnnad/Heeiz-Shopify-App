@@ -2,7 +2,7 @@
 
 client_id = "0a8f18f3767200f37f6eeaace1b2a3a1"
 name = "Heeiz App"
-application_url = "https://heeiz.up.railway.app"
+application_url = "https://heeiz-shopify-app-production-a3c7.up.railway.app"
 embedded = true
 
 [build]
@@ -43,7 +43,7 @@ purposes = [ "fulfill_orders" ]
 
 [auth]
 redirect_urls = [
-  "https://heeiz.up.railway.app/auth/callback",
-  "https://heeiz.up.railway.app/auth/shopify/callback",
-  "https://heeiz.up.railway.app/api/auth"
+  "https://heeiz-shopify-app-production-a3c7.up.railway.app/auth/callback",
+  "https://heeiz-shopify-app-production-a3c7.up.railway.app/auth/shopify/callback",
+  "https://heeiz-shopify-app-production-a3c7.up.railway.app/api/auth"
 ]
