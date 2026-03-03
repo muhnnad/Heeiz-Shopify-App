@@ -1,1 +1,1 @@
-web: npx prisma db push && npm run start
+web: npx prisma generate && npx prisma db push && npm run start
