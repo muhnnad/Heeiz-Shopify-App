@@ -69,10 +69,16 @@ export const loader = async ({ request }) => {
       paymentStatus: paymentStatus || undefined,
     });
 
+    const paginatedData = result.data;
+    const orders = Array.isArray(paginatedData)
+      ? paginatedData
+      : (Array.isArray(paginatedData?.data) ? paginatedData.data : []);
+    const meta = Array.isArray(paginatedData) ? (result.meta || null) : (paginatedData || null);
+
     return {
       hasToken: true,
-      orders: Array.isArray(result.data) ? result.data : [],
-      meta: result.meta || null,
+      orders,
+      meta,
       page,
       orderStatus,
       paymentStatus,

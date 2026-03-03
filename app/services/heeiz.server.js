@@ -193,7 +193,10 @@ export async function getHeeizProvinces(token) {
     throw new Error(data.message || "فشل جلب المحافظات من حيز");
   }
 
-  return Array.isArray(data.data) ? data.data : [];
+  const raw = data.data;
+  if (Array.isArray(raw)) return raw;
+  if (Array.isArray(raw?.data)) return raw.data;
+  return [];
 }
 
 export async function getHeeizRegions(token, provinceId) {
@@ -211,7 +214,10 @@ export async function getHeeizRegions(token, provinceId) {
     throw new Error(data.message || "فشل جلب المناطق من حيز");
   }
 
-  return Array.isArray(data.data) ? data.data : [];
+  const raw = data.data;
+  if (Array.isArray(raw)) return raw;
+  if (Array.isArray(raw?.data)) return raw.data;
+  return [];
 }
 
 // ─── Vendor ───────────────────────────────────────────────────────────────────
@@ -228,7 +234,10 @@ export async function getHeeizPickupLocations(token) {
     throw new Error(data.message || "فشل جلب مواقع الاستلام من حيز");
   }
 
-  return Array.isArray(data.data) ? data.data : [];
+  const raw = data.data;
+  if (Array.isArray(raw)) return raw;
+  if (Array.isArray(raw?.data)) return raw.data;
+  return [];
 }
 
 // ─── Error handling ───────────────────────────────────────────────────────────
