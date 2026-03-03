@@ -6,9 +6,9 @@ import prisma from "../db.server";
 export const loader = async ({ request }) => {
   const { session } = await authenticate.admin(request);
   const url = new URL(request.url);
-  const cityId = url.searchParams.get("city_id");
+  const provinceId = url.searchParams.get("city_id");
 
-  if (!cityId) {
+  if (!provinceId) {
     return { regions: [] };
   }
 
@@ -17,7 +17,7 @@ export const loader = async ({ request }) => {
   });
 
   try {
-    const regions = await getHeeizRegions(settings?.heeizToken, cityId);
+    const regions = await getHeeizRegions(settings?.heeizToken, provinceId);
     return { regions };
   } catch {
     return { regions: [] };

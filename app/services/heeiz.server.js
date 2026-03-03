@@ -3,6 +3,7 @@
  */
 
 const HEEIZ_API_KEY = "h#SDMqUFmFn)rrHj,VEVS19h,[@etW";
+const HEEIZ_BASE = "https://api.heeiz.net/api/v1/external";
 
 // Headers مشتركة لجميع الطلبات
 function baseHeaders(token) {
@@ -28,7 +29,7 @@ class HeeizApiError extends Error {
 }
 
 export async function sendOrderToHeeiz(token, orderData) {
-  const response = await fetch("https://api.heeiz.net/api/v1/vendor/direct-order", {
+  const response = await fetch(`${HEEIZ_BASE}/vendor/direct-order`, {
     method: "POST",
     headers: baseHeaders(token),
     body: JSON.stringify(orderData),
@@ -49,7 +50,7 @@ export async function sendOrderToHeeiz(token, orderData) {
 
 export async function validateHeeizToken(token) {
   try {
-    const response = await fetch("https://api.heeiz.net/api/v1/vendor/orders?perPage=1", {
+    const response = await fetch(`${HEEIZ_BASE}/vendor/orders?perPage=1`, {
       method: "GET",
       headers: baseHeaders(token),
     });
@@ -66,6 +67,7 @@ export async function validateHeeizToken(token) {
 
 export async function loginToHeeiz(phone, password) {
   try {
+    // تسجيل الدخول يبقى على الرابط الأصلي (خارج /external)
     const response = await fetch("https://api.heeiz.net/api/v1/vendor/auth/login", {
       method: "POST",
       headers: baseHeaders(null),
@@ -98,7 +100,7 @@ export async function loginToHeeiz(phone, password) {
 }
 
 export async function getHeeizProvinces(token) {
-  const response = await fetch("https://api.heeiz.net/api/v1/provinces", {
+  const response = await fetch(`${HEEIZ_BASE}/locations/provinces`, {
     method: "GET",
     headers: baseHeaders(token),
   });
@@ -113,7 +115,7 @@ export async function getHeeizProvinces(token) {
 }
 
 export async function getHeeizShippers(token) {
-  const response = await fetch("https://api.heeiz.net/api/v1/vendor/shippers", {
+  const response = await fetch(`${HEEIZ_BASE}/vendor/shippers`, {
     method: "GET",
     headers: baseHeaders(token),
   });
@@ -128,13 +130,10 @@ export async function getHeeizShippers(token) {
 }
 
 export async function getHeeizPickupLocations(token) {
-  const response = await fetch(
-    "https://api.heeiz.net/api/v1/vendor/pickup-locations",
-    {
-      method: "GET",
-      headers: baseHeaders(token),
-    },
-  );
+  const response = await fetch(`${HEEIZ_BASE}/vendor/pickup-locations`, {
+    method: "GET",
+    headers: baseHeaders(token),
+  });
 
   const data = await response.json();
 
@@ -145,12 +144,9 @@ export async function getHeeizPickupLocations(token) {
   return data.data || [];
 }
 
-export async function getHeeizRegions(token, cityId) {
-  const params = new URLSearchParams();
-  if (cityId) params.set("city_id", String(cityId));
-
+export async function getHeeizRegions(token, provinceId) {
   const response = await fetch(
-    `https://api.heeiz.net/api/v1/regions?${params.toString()}`,
+    `${HEEIZ_BASE}/locations/provinces/${provinceId}/regions`,
     {
       method: "GET",
       headers: baseHeaders(token),
@@ -174,7 +170,7 @@ export async function getHeeizOrders(token, { page = 1, perPage = 15, orderStatu
   if (paymentStatus) params.set("payment_status", paymentStatus);
 
   const response = await fetch(
-    `https://api.heeiz.net/api/v1/vendor/orders?${params.toString()}`,
+    `${HEEIZ_BASE}/vendor/orders?${params.toString()}`,
     {
       method: "GET",
       headers: baseHeaders(token),
