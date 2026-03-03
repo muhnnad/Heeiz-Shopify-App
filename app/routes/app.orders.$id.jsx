@@ -117,18 +117,14 @@ export default function OrderDetailPage() {
 
   const [note, setNote] = useState(order.note || "");
   const [selectedPickupLocation, setSelectedPickupLocation] = useState(String(defaultPickupLocationId || ""));
-  const [selectedShipper, setSelectedShipper] = useState("");
 
   const pickupFetcher = useFetcher();
-  const shipperFetcher = useFetcher();
 
   useEffect(() => {
     pickupFetcher.load("/app/api/pickup-locations");
-    shipperFetcher.load("/app/api/shippers");
   }, []);
 
   const pickupLocations = pickupFetcher.data?.locations || [];
-  const shippers = shipperFetcher.data?.shippers || [];
 
   // Auto-select first pickup location if no default set
   useEffect(() => {
@@ -136,13 +132,6 @@ export default function OrderDetailPage() {
       setSelectedPickupLocation(String(pickupLocations[0].id));
     }
   }, [pickupLocations]);
-
-  // Auto-select first shipper
-  useEffect(() => {
-    if (shippers.length > 0 && !selectedShipper) {
-      setSelectedShipper(String(shippers[0].id));
-    }
-  }, [shippers]);
 
   const autoDetectedProvinceId = (() => {
     const text = [order.shippingAddress?.province, order.shippingAddress?.city].filter(Boolean).join(" ");
@@ -170,7 +159,6 @@ export default function OrderDetailPage() {
     formData.append("provinceId", selectedProvince);
     formData.append("regionId", selectedRegion);
     formData.append("pickupLocationId", selectedPickupLocation);
-    formData.append("shipperId", selectedShipper);
     fetcher.submit(formData, { method: "POST", action: "/app/send-order" });
   };
 
@@ -194,7 +182,7 @@ export default function OrderDetailPage() {
     : "—";
 
   const discountAmount = parseFloat(order.totalDiscountsSet?.shopMoney?.amount || 0);
-  const canSend = hasToken && selectedProvince && selectedRegion && selectedPickupLocation && selectedShipper;
+  const canSend = hasToken && selectedProvince && selectedRegion && selectedPickupLocation;
 
   return (
     <s-page heading={`Order ${order.name}`} back-action-url="/app/orders">
@@ -323,15 +311,6 @@ export default function OrderDetailPage() {
               options={pickupLocations.map((loc) => ({ value: String(loc.id), label: loc.address }))}
               placeholder="Select warehouse..."
               loading={pickupFetcher.state === "loading"}
-            />
-
-            <SearchableSelect
-              label="Delivery Company"
-              value={selectedShipper}
-              onChange={setSelectedShipper}
-              options={shippers.map((s) => ({ value: String(s.id), label: s.name }))}
-              placeholder="Select company..."
-              loading={shipperFetcher.state === "loading"}
             />
 
             <s-text-area

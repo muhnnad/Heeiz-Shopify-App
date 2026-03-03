@@ -40,7 +40,6 @@ model ShopSettings {
   defaultProvince   Int?
   defaultRegion     Int?
   pickupLocationId  Int?
-  shipperId         Int?
   isActive          Boolean  @default(true)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt

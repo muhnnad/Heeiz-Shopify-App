@@ -38,7 +38,6 @@ export const loader = async ({ request }) => {
     defaultProvince: settings?.defaultProvince || null,
     defaultRegion: settings?.defaultRegion || null,
     pickupLocationId: settings?.pickupLocationId || null,
-    shipperId: settings?.shipperId || null,
     provinces,
     pickupLocations,
   };
@@ -104,7 +103,6 @@ export const action = async ({ request }) => {
     const defaultProvince = formData.get("defaultProvince");
     const defaultRegion = formData.get("defaultRegion");
     const pickupLocationId = formData.get("pickupLocationId")?.trim();
-    const shipperId = formData.get("shipperId")?.trim();
 
     const heeizToken = newToken || existing?.heeizToken;
 
@@ -119,7 +117,6 @@ export const action = async ({ request }) => {
         defaultProvince: defaultProvince ? parseInt(defaultProvince) : null,
         defaultRegion: defaultRegion ? parseInt(defaultRegion) : null,
         pickupLocationId: pickupLocationId ? parseInt(pickupLocationId) : null,
-        shipperId: shipperId ? parseInt(shipperId) : null,
       },
       create: {
         shop: session.shop,
@@ -127,7 +124,6 @@ export const action = async ({ request }) => {
         defaultProvince: defaultProvince ? parseInt(defaultProvince) : null,
         defaultRegion: defaultRegion ? parseInt(defaultRegion) : null,
         pickupLocationId: pickupLocationId ? parseInt(pickupLocationId) : null,
-        shipperId: shipperId ? parseInt(shipperId) : null,
       },
     });
 
@@ -205,7 +201,7 @@ export default function SettingsPage() {
   const {
     hasToken, tokenPreview,
     defaultProvince, defaultRegion,
-    pickupLocationId, shipperId,
+    pickupLocationId,
     provinces, pickupLocations,
   } = useLoaderData();
   const actionData = useActionData();
@@ -220,7 +216,6 @@ export default function SettingsPage() {
   const [selectedProvince, setSelectedProvince] = useState(String(defaultProvince || ""));
   const [selectedRegion, setSelectedRegion]     = useState(String(defaultRegion || ""));
   const [pickupLocId, setPickupLocId]           = useState(String(pickupLocationId || ""));
-  const [shipperIdVal, setShipperIdVal]         = useState(String(shipperId || ""));
 
   /* regions */
   const regionFetcher = useFetcher();
@@ -229,16 +224,8 @@ export default function SettingsPage() {
   }, [selectedProvince]);
   const regions = regionFetcher.data?.regions || [];
 
-  /* shippers */
-  const shipperFetcher = useFetcher();
-  useEffect(() => {
-    shipperFetcher.load("/app/api/shippers");
-  }, []);
-  const shippers = shipperFetcher.data?.shippers || [];
-
   /* pickup options */
   const pickupOptions   = pickupLocations.map((l) => ({ value: String(l.id), label: l.address }));
-  const shipperOptions  = shippers.map((s) => ({ value: String(s.id), label: s.name }));
   const provinceOptions = provinces.map((p) => ({ value: String(p.id), label: p.title }));
   const regionOptions   = regions.map((r) => ({ value: String(r.id), label: r.title }));
 
@@ -440,7 +427,6 @@ export default function SettingsPage() {
                 <input type="hidden" name="defaultProvince"  value={selectedProvince} />
                 <input type="hidden" name="defaultRegion"    value={selectedRegion} />
                 <input type="hidden" name="pickupLocationId" value={pickupLocId} />
-                <input type="hidden" name="shipperId"        value={shipperIdVal} />
 
                 <div style={{
                   display: "grid",
@@ -556,40 +542,6 @@ export default function SettingsPage() {
                     />
                   </div>
 
-                  {/* Delivery Company */}
-                  <div style={{
-                    background: "linear-gradient(135deg, #fefce8 0%, #fef9c3 100%)",
-                    border: "1.5px solid #fde68a",
-                    borderRadius: "12px",
-                    padding: "20px",
-                  }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "14px" }}>
-                      <div style={{
-                        width: "34px", height: "34px", borderRadius: "10px",
-                        background: shipperIdVal ? "linear-gradient(135deg, #d97706, #f59e0b)" : "#fde68a",
-                        color: shipperIdVal ? "#fff" : "#6b7280",
-                        display: "flex", alignItems: "center", justifyContent: "center",
-                        fontSize: "16px", flexShrink: 0,
-                        boxShadow: shipperIdVal ? "0 3px 8px rgba(217,119,6,0.35)" : "none",
-                      }}>🚚</div>
-                      <div>
-                        <div style={{
-                          fontSize: "13px", fontWeight: "700",
-                          color: shipperIdVal ? "#b45309" : "#64748b",
-                        }}>Delivery Company</div>
-                        <div style={{ fontSize: "11px", color: "#94a3b8", marginTop: "1px" }}>
-                          Default carrier for orders
-                        </div>
-                      </div>
-                    </div>
-                    <SearchableSelect
-                      value={shipperIdVal}
-                      onChange={setShipperIdVal}
-                      options={shipperOptions}
-                      placeholder="No default"
-                      loading={shipperFetcher.state === "loading"}
-                    />
-                  </div>
                 </div>
 
                 {/* Save row */}

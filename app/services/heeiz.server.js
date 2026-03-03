@@ -216,21 +216,6 @@ export async function getHeeizRegions(token, provinceId) {
 
 // ─── Vendor ───────────────────────────────────────────────────────────────────
 
-export async function getHeeizShippers(token) {
-  const response = await fetch(`${HEEIZ_BASE}/vendor/shippers`, {
-    method: "GET",
-    headers: baseHeaders(token),
-  });
-
-  const data = await response.json();
-
-  if (!response.ok || data.ok === false) {
-    throw new Error(data.message || "فشل جلب شركات التوصيل من حيز");
-  }
-
-  return data.data || [];
-}
-
 export async function getHeeizPickupLocations(token) {
   const response = await fetch(`${HEEIZ_BASE}/vendor/pickup-locations`, {
     method: "GET",

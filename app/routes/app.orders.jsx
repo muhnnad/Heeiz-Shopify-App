@@ -139,30 +139,20 @@ export default function OrdersPage() {
   const [searchParams] = useSearchParams();
 
   const pickupFetcher  = useFetcher();
-  const shipperFetcher = useFetcher();
 
   const [selectedPickupLocation, setSelectedPickupLocation] = useState(String(defaultPickupLocationId || ""));
-  const [selectedShipper, setSelectedShipper] = useState("");
 
   useEffect(() => {
     pickupFetcher.load("/app/api/pickup-locations");
-    shipperFetcher.load("/app/api/shippers");
   }, []);
 
   const pickupLocations = pickupFetcher.data?.locations || [];
-  const shippers        = shipperFetcher.data?.shippers  || [];
 
   useEffect(() => {
     if (pickupLocations.length > 0 && !selectedPickupLocation) {
       setSelectedPickupLocation(String(pickupLocations[0].id));
     }
   }, [pickupLocations]);
-
-  useEffect(() => {
-    if (shippers.length > 0 && !selectedShipper) {
-      setSelectedShipper(String(shippers[0].id));
-    }
-  }, [shippers]);
 
   if (accessError === "protected_customer_data") {
     return (
@@ -253,16 +243,6 @@ export default function OrdersPage() {
               loading={pickupFetcher.state === "loading"}
             />
           </div>
-          <div style={{ flex: "1", minWidth: "180px" }}>
-            <SearchableSelect
-              label="Delivery Company"
-              value={selectedShipper}
-              onChange={setSelectedShipper}
-              options={shippers.map((s) => ({ value: String(s.id), label: s.name }))}
-              placeholder="Select company..."
-              loading={shipperFetcher.state === "loading"}
-            />
-          </div>
         </div>
       </s-section>
 
@@ -295,7 +275,6 @@ export default function OrdersPage() {
                   defaultProvince={defaultProvince}
                   defaultRegion={defaultRegion}
                   selectedPickupLocation={selectedPickupLocation}
-                  selectedShipper={selectedShipper}
                   customerHeeiz={order.customerHeeiz}
                 />
               ))}
@@ -314,7 +293,7 @@ function detectProvinceId(shippingAddress, provinces) {
   return match ? String(match.id) : "";
 }
 
-function OrderRow({ order, hasToken, provinces, defaultProvince, defaultRegion, selectedPickupLocation, selectedShipper, customerHeeiz }) {
+function OrderRow({ order, hasToken, provinces, defaultProvince, defaultRegion, selectedPickupLocation, customerHeeiz }) {
   const fetcher       = useFetcher({ key: `send-${order.id}` });
   const regionFetcher = useFetcher();
   const [isExpanded, setIsExpanded] = useState(false);
@@ -370,19 +349,18 @@ function OrderRow({ order, hasToken, provinces, defaultProvince, defaultRegion, 
   ].filter(Boolean).join(", ");
 
   const handleSend = () => {
-    if (!hasToken || !selectedProvince || !selectedRegion || !selectedPickupLocation || !selectedShipper) return;
+    if (!hasToken || !selectedProvince || !selectedRegion || !selectedPickupLocation) return;
     const formData = new FormData();
     formData.append("orderId", order.id);
     formData.append("orderNumber", order.name);
     formData.append("provinceId", selectedProvince);
     formData.append("regionId", selectedRegion);
     formData.append("pickupLocationId", selectedPickupLocation);
-    formData.append("shipperId", selectedShipper);
     fetcher.submit(formData, { method: "POST", action: "/app/send-order" });
     setIsExpanded(false);
   };
 
-  const canSend = hasToken && selectedProvince && selectedRegion && selectedPickupLocation && selectedShipper;
+  const canSend = hasToken && selectedProvince && selectedRegion && selectedPickupLocation;
 
   return (
     <>
