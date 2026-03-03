@@ -1,4 +1,9 @@
 import "@shopify/shopify-app-react-router/adapters/node";
+
+// Safety: prevent unhandled DB errors from crashing the server
+process.on("unhandledRejection", (reason) => {
+  console.error("[server] Unhandled rejection (server continues):", reason?.message || reason);
+});
 import {
   ApiVersion,
   AppDistribution,
