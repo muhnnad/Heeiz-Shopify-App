@@ -105,10 +105,7 @@ export const action = async ({ request }) => {
       }
 
       // تحويل وإرسال
-      const heeizOrder = mapShopifyOrderToHeeiz(shopifyOrder, provinceId, regionId, {
-        pickupLocationId: settings.pickupLocationId,
-        shipperId: settings.shipperId,
-      });
+      const heeizOrder = mapShopifyOrderToHeeiz(shopifyOrder, provinceId, regionId);
       const result = await sendOrderToHeeiz(settings.heeizToken, heeizOrder);
 
       // حفظ نجاح

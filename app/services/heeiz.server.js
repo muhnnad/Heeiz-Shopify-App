@@ -28,8 +28,10 @@ class HeeizApiError extends Error {
   }
 }
 
+// ─── Orders ───────────────────────────────────────────────────────────────────
+
 export async function sendOrderToHeeiz(token, orderData) {
-  const response = await fetch(`${HEEIZ_BASE}/vendor/direct-order`, {
+  const response = await fetch(`${HEEIZ_BASE}/orders/direct`, {
     method: "POST",
     headers: baseHeaders(token),
     body: JSON.stringify(orderData),
@@ -48,9 +50,87 @@ export async function sendOrderToHeeiz(token, orderData) {
   return data;
 }
 
+export async function getHeeizOrders(token, { page = 1, perPage = 15, orderStatusId, paymentStatus } = {}) {
+  const params = new URLSearchParams();
+  params.set("page", String(page));
+  params.set("perPage", String(perPage));
+  if (orderStatusId) params.set("order_status_id", String(orderStatusId));
+  if (paymentStatus) params.set("payment_status", paymentStatus);
+
+  const response = await fetch(
+    `${HEEIZ_BASE}/orders?${params.toString()}`,
+    {
+      method: "GET",
+      headers: baseHeaders(token),
+    },
+  );
+
+  const data = await response.json();
+
+  if (!response.ok || data.ok === false) {
+    throw new Error(data.message || "فشل جلب الطلبات من حيز");
+  }
+
+  return data;
+}
+
+export async function getHeeizOrder(token, id) {
+  const response = await fetch(`${HEEIZ_BASE}/orders/${id}`, {
+    method: "GET",
+    headers: baseHeaders(token),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok || data.ok === false) {
+    throw new Error(data.message || "فشل جلب الطلب من حيز");
+  }
+
+  return data.data || data;
+}
+
+export async function getHeeizOrderByNumber(token, orderNumber) {
+  const response = await fetch(
+    `${HEEIZ_BASE}/orders/${orderNumber}/by-order-number`,
+    {
+      method: "GET",
+      headers: baseHeaders(token),
+    },
+  );
+
+  const data = await response.json();
+
+  if (!response.ok || data.ok === false) {
+    throw new Error(data.message || "فشل البحث عن الطلب في حيز");
+  }
+
+  return data.data || data;
+}
+
+export async function deleteHeeizOrder(token, id) {
+  const response = await fetch(`${HEEIZ_BASE}/orders/${id}`, {
+    method: "DELETE",
+    headers: baseHeaders(token),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok || data.ok === false) {
+    throw new HeeizApiError(
+      data.message || "فشل حذف الطلب من حيز",
+      response.status,
+      data,
+    );
+  }
+
+  return data;
+}
+
+// ─── Auth ─────────────────────────────────────────────────────────────────────
+
 export async function validateHeeizToken(token) {
   try {
-    const response = await fetch(`${HEEIZ_BASE}/vendor/orders?perPage=1`, {
+    const response = await fetch(`${HEEIZ_BASE}/orders?perPage=1`, {
       method: "GET",
       headers: baseHeaders(token),
     });
@@ -99,6 +179,8 @@ export async function loginToHeeiz(phone, password) {
   }
 }
 
+// ─── Locations ────────────────────────────────────────────────────────────────
+
 export async function getHeeizProvinces(token) {
   const response = await fetch(`${HEEIZ_BASE}/locations/provinces`, {
     method: "GET",
@@ -113,6 +195,26 @@ export async function getHeeizProvinces(token) {
 
   return data.data || [];
 }
+
+export async function getHeeizRegions(token, provinceId) {
+  const response = await fetch(
+    `${HEEIZ_BASE}/locations/provinces/${provinceId}/regions`,
+    {
+      method: "GET",
+      headers: baseHeaders(token),
+    },
+  );
+
+  const data = await response.json();
+
+  if (!response.ok || data.ok === false) {
+    throw new Error(data.message || "فشل جلب المناطق من حيز");
+  }
+
+  return data.data || [];
+}
+
+// ─── Vendor ───────────────────────────────────────────────────────────────────
 
 export async function getHeeizShippers(token) {
   const response = await fetch(`${HEEIZ_BASE}/vendor/shippers`, {
@@ -144,47 +246,7 @@ export async function getHeeizPickupLocations(token) {
   return data.data || [];
 }
 
-export async function getHeeizRegions(token, provinceId) {
-  const response = await fetch(
-    `${HEEIZ_BASE}/locations/provinces/${provinceId}/regions`,
-    {
-      method: "GET",
-      headers: baseHeaders(token),
-    },
-  );
-
-  const data = await response.json();
-
-  if (!response.ok || data.ok === false) {
-    throw new Error(data.message || "فشل جلب المناطق من حيز");
-  }
-
-  return data.data || [];
-}
-
-export async function getHeeizOrders(token, { page = 1, perPage = 15, orderStatusId, paymentStatus } = {}) {
-  const params = new URLSearchParams();
-  params.set("page", String(page));
-  params.set("perPage", String(perPage));
-  if (orderStatusId) params.set("order_status_id", String(orderStatusId));
-  if (paymentStatus) params.set("payment_status", paymentStatus);
-
-  const response = await fetch(
-    `${HEEIZ_BASE}/vendor/orders?${params.toString()}`,
-    {
-      method: "GET",
-      headers: baseHeaders(token),
-    },
-  );
-
-  const data = await response.json();
-
-  if (!response.ok || data.ok === false) {
-    throw new Error(data.message || "فشل جلب الطلبات من حيز");
-  }
-
-  return data;
-}
+// ─── Error handling ───────────────────────────────────────────────────────────
 
 export function getHeeizErrorMessage(error) {
   if (!error) return "خطأ غير معروف";

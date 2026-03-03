@@ -10,10 +10,9 @@ const ORDER_DETAIL_QUERY = `#graphql
     order(id: $id) {
       id
       name
-      displayFinancialStatus
-      paymentGatewayNames
+      note
       totalDiscountsSet { shopMoney { amount } }
-      customer { firstName lastName phone }
+      customer { firstName lastName email phone }
       shippingAddress {
         name phone address1 address2 city province country
       }
@@ -91,17 +90,8 @@ export const action = async ({ request }) => {
       return { success: false, error: "تعذّر جلب بيانات الطلب من Shopify" };
     }
 
-    // pickupLocationId & shipperId: من النموذج أولاً، ثم الإعدادات الافتراضية
-    const pickupLocationId =
-      formData.get("pickupLocationId") || settings.pickupLocationId;
-    const shipperId =
-      formData.get("shipperId") || settings.shipperId;
-
     // تحويل بيانات الطلب إلى صيغة حيز
-    const heeizOrder = mapShopifyOrderToHeeiz(shopifyOrder, shippingLocationId, regionId, {
-      pickupLocationId,
-      shipperId,
-    });
+    const heeizOrder = mapShopifyOrderToHeeiz(shopifyOrder, shippingLocationId, regionId);
 
     // إرسال الطلب لحيز
     const result = await sendOrderToHeeiz(settings.heeizToken, heeizOrder);
