@@ -2,7 +2,7 @@
 
 client_id = "b384356442378bae03863e5214992d3c"
 name = "Heeiz App"
-application_url = "https://heeiz-shopify-app-production-a3c7.up.railway.app"
+application_url = "https://heeiz-fulfillment.up.railway.app"
 embedded = true
 
 [build]
@@ -19,31 +19,16 @@ api_version = "2026-04"
   topics = [ "app/scopes_update" ]
   uri = "/webhooks/app/scopes_update"
 
-[access_scopes]
-scopes = "read_orders,read_products,read_customers"
-
 [access.admin]
 direct_api_mode = "online"
 
-[[access.admin.customer_data_protections]]
-data_type = "Name"
-purposes = [ "fulfill_orders" ]
-
-[[access.admin.customer_data_protections]]
-data_type = "Email"
-purposes = [ "fulfill_orders" ]
-
-[[access.admin.customer_data_protections]]
-data_type = "Phone"
-purposes = [ "fulfill_orders" ]
-
-[[access.admin.customer_data_protections]]
-data_type = "ShippingAddress"
-purposes = [ "fulfill_orders" ]
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "read_customers,read_orders,read_products"
 
 [auth]
 redirect_urls = [
-  "https://heeiz-shopify-app-production-a3c7.up.railway.app/auth/callback",
-  "https://heeiz-shopify-app-production-a3c7.up.railway.app/auth/shopify/callback",
-  "https://heeiz-shopify-app-production-a3c7.up.railway.app/api/auth"
+  "https://heeiz-fulfillment.up.railway.app/auth/callback",
+  "https://heeiz-fulfillment.up.railway.app/auth/shopify/callback",
+  "https://heeiz-fulfillment.up.railway.app/api/auth"
 ]
