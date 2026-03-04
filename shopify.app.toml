@@ -27,11 +27,6 @@ direct_api_mode = "online"
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
 scopes = "read_customers,read_orders,read_products"
 
-[privacy]
-customer_data_request_url = "https://heeiz-fulfillment.up.railway.app/webhooks/customers/data_request"
-customer_data_erasure_url = "https://heeiz-fulfillment.up.railway.app/webhooks/customers/redact"
-shop_data_erasure_url = "https://heeiz-fulfillment.up.railway.app/webhooks/shop/redact"
-
 [auth]
 redirect_urls = [
   "https://heeiz-fulfillment.up.railway.app/auth/callback",
