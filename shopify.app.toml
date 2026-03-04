@@ -1,6 +1,6 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
-client_id = "0a8f18f3767200f37f6eeaace1b2a3a1"
+client_id = "b384356442378bae03863e5214992d3c"
 name = "Heeiz App"
 application_url = "https://heeiz-shopify-app-production-a3c7.up.railway.app"
 embedded = true
